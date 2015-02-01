@@ -22,7 +22,7 @@ function checkFootNoteInLine(lineAttrib,pool){
 		if(iter.hasNext()){
 
 			var op = iter.next();
-			fn =  ChangeSet.opAttributeValue(op,'footnote',pool);
+			fn =  ChangeSet.opAttributeValue(op,'fnss',pool);
  		}
 
 	}
