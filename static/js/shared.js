@@ -7,8 +7,8 @@ var collectContentPre = function(hook, context){
   var state = context.state;
   var lineAttributes = state.lineAttributes
 
-  if(tname == "hrline"){
-    lineAttributes['hrline'] = 'hr';
+  if(tname == "footnote"){
+    lineAttributes['footnote'] = 'fn';
   }
 };
 
@@ -17,8 +17,8 @@ var collectContentPost = function(hook, context){
   var state = context.state;
   var lineAttributes = state.lineAttributes
 
-  if(tname == 'hrline'){
-    delete lineAttributes['hrline'];
+  if(tname == 'footnote'){
+    delete lineAttributes['footnote'];
   }
 };
 
