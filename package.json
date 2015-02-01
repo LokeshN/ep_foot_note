@@ -1,0 +1,17 @@
+{
+	"name":"ep_foot_note",
+	"version":"0.0.2",
+	"keywords":["footnote","footer"],
+	"description":"Foot Note",
+	"contributors":[
+		{
+		"name":"Lokesh N",
+		"email":"nlokesh.17@gmail.com"
+		}
+	],
+	"dependencies":{},
+	"engines":{
+		"node":"*"
+	}
+	
+}
