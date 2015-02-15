@@ -202,6 +202,7 @@ var fnPopupManager = (function FootNotePopupManager(){
 				 
 				 fnPopupManager.getFootNoteContext().ace.callWithAce(function(ace){
 								ace.ace_addFootNote(footNoteText);
+								$('iframe[name="ace_outer"]').contents().find('#fnInput').val("")
 						},'addFootNote' , true);
 				 
 				// fnPopupManager.getFootNoteContext().callAddFootNote(this.footNoteText);
@@ -212,6 +213,7 @@ var fnPopupManager = (function FootNotePopupManager(){
 			//cancel click event listener
 			this.container.find('#fnCancel').on('click',function(){
 				 //this.footNoteText = $("#fnInput").text();
+				 $('iframe[name="ace_outer"]').contents().find('#fnInput').val("")
 				 var container = $('iframe[name="ace_outer"]').contents().find('#footNotePopup');//this.padOuter.find('#footNotePopup');
 				 container.hide();
 			    //var form = $(this).parent().parent();
