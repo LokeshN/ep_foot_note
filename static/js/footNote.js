@@ -55,15 +55,26 @@ function aceCreateDomLine(name, context){
   return [];
 }
 
-var buttonPressed = false;
+
+var contxt = null;
+//var buttonPressed = false;
 function postAceInit(hook,context){
 	var hs = $('#footnote-button');
+    //var _this = this;
 	hs.on('click', function(){
-	     buttonPressed = true;
-	     context.ace.callWithAce(function(ace){
-			        ace.ace_addFootNote();
-	      },'addFootNote' , true);
+	     //buttonPressed = true;
+	     debugger;
+		 contxt = context;
+		fnPopupManager.showPopup(contxt);
+		 
   	});
+}
+
+
+function callAddFootNote(footNoteText){
+	contxt.ace.callWithAce(function(ace){
+								ace.ace_addFootNote(footNoteText);
+						},'addFootNote' , true);
 }
 
 
@@ -73,7 +84,7 @@ function aceInitialized(hook,context){
 }
 
 
-function addFootNote(){
+function addFootNote(footNoteText){
 
 	var rep = this.rep;
 	var documentAttributeManager = this.documentAttributeManager;
@@ -122,7 +133,7 @@ function addFootNote(){
 	 //TODO: Have a popup to get the foot note from the user
 	 //this.documentAttributeManager.setAttributeOnLine(lastLineNo,'fnsuperscript','fn');
 	 //this.editorInfo.ace_performDocumentReplaceRange([lastLineNo,0],[lastLineNo,len],footNoteCounter + ' Sample Footnote');
-	 this.editorInfo.ace_replaceRange([lastLineNo,0],[lastLineNo,len],footNoteCounter + ' Sample Footnote');
+	 this.editorInfo.ace_replaceRange([lastLineNo,0],[lastLineNo,len],footNoteCounter + ' '+footNoteText);
 	 this.rep.selStart = [lastLineNo,0];
 	 this.rep.selEnd = [lastLineNo,(footNoteCounter+'').length];
 	 //sample setting atttribute
@@ -148,6 +159,72 @@ function aceEditorCSS(){
   return cssFiles;
 }
 
+
+
+
+var fnPopupManager = (function FootNotePopupManager(){
+
+	return {
+		container:null,
+
+		insertPopupContainer:function(){
+			 $('iframe[name="ace_outer"]').contents().find("#outerdocbody").prepend('<div id="footNotePopup" class="fn-popup" style="display: block;"><div><input id="fnInput" type="text"/></div> <div style="padding-top:10px"><input type="button" id="fnAdd" value="Add"/><input style="margin-left:10px" type="button" value="Cancel" id="fnCancel"/></div></div>');
+  			 this.container = $('iframe[name="ace_outer"]').contents().find('#footNotePopup');//this.padOuter.find('#footNotePopup');
+			 this.addEventListener();
+		},
+		
+		getFootNoteContext:function(){
+			return this.footNoteContext;
+		},
+		
+		setFootNoteContext:function(footNoteContext){
+			this.footNoteContext = footNoteContext;
+		},
+		
+		showPopup:function(footNoteContext){
+			//$("#footNotePopup").show();
+			if(this.container == null)
+				this.insertPopupContainer();
+			this.container.show();
+			this.setFootNoteContext(footNoteContext);
+		},
+
+		addEventListener:function(){
+		
+		  
+			//add on click event listener..
+			 this.container.find('#fnAdd').on('click',function(){
+				 var footNoteText = $('iframe[name="ace_outer"]').contents().find('#fnInput').val();
+				 var container = $('iframe[name="ace_outer"]').contents().find('#footNotePopup');//this.padOuter.find('#footNotePopup');
+				 container.hide();
+				 
+				 if(footNoteText == "")return;
+				 
+				 fnPopupManager.getFootNoteContext().ace.callWithAce(function(ace){
+								ace.ace_addFootNote(footNoteText);
+						},'addFootNote' , true);
+				 
+				// fnPopupManager.getFootNoteContext().callAddFootNote(this.footNoteText);
+			    //var form = $(this).parent().parent();
+			    //$('iframe[name="ace_outer"]').contents().find('#comments').find('#newComment').addClass("hidden").removeClass("visible");
+
+  			});
+			//cancel click event listener
+			this.container.find('#fnCancel').on('click',function(){
+				 //this.footNoteText = $("#fnInput").text();
+				 var container = $('iframe[name="ace_outer"]').contents().find('#footNotePopup');//this.padOuter.find('#footNotePopup');
+				 container.hide();
+			    //var form = $(this).parent().parent();
+			    //$('iframe[name="ace_outer"]').contents().find('#comments').find('#newComment').addClass("hidden").removeClass("visible");
+
+  			});
+		}
+
+
+
+	}
+
+})();
 
 
 
