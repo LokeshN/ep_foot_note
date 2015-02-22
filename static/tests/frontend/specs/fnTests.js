@@ -1,4 +1,4 @@
-describe("Horizontalline", function(){
+describe("Footnote", function(){
   //create a new pad before each test run
   beforeEach(function(cb){
     helper.newPad(cb);
@@ -7,10 +7,11 @@ describe("Horizontalline", function(){
 
 
 
-  it("Add horizontal line", function(done) {
-	//debugger;
+  it("Add footnote", function(done) {
+	debugger;
     var inner$ = helper.padInner$;
     var chrome$ = helper.padChrome$;
+    var outer$  = helper.padOuter$;
 
     //get the first text element out of the inner iframe
     var $firstTextElement = inner$("div").first();
@@ -22,14 +23,18 @@ describe("Horizontalline", function(){
 	$firstTextElement = inner$("div").first();
 	$firstTextElement.sendkeys('{selectall}');
 
-    //get the hr button and click it
-    var $hrButton = chrome$("#hrline-button");
-    $hrButton.click();
+    //get the FN button and click it
+    var $fnButton = chrome$("#footnote-button");
+    $fnButton.click();
 
-	//check hr is present
- 	var $hrDomElement = inner$("div:nth-child(1)");
-	var ishrPresent = $hrDomElement.find("hr").length == 1;
-	expect(ishrPresent).to.be(true);
+	outer$("#fnInput").val("Sample Footnote");
+	var $addButton = outer$("#fnAdd");
+	$addButton.click();
+
+	//check fn is present
+ 	var $fnDomElement = inner$("div:nth-child(2)");
+	var isfnPresent = $fnDomElement.find("sup").length == 1;
+	expect(isfnPresent).to.be(true);
 	done();
 
   });
