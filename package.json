@@ -1,17 +1,30 @@
 {
-	"name":"ep_foot_note",
-	"version":"0.0.2",
-	"keywords":["footnote","footer"],
-	"description":"Foot Note",
-	"contributors":[
-		{
-		"name":"Lokesh N",
-		"email":"nlokesh.17@gmail.com"
-		}
-	],
-	"dependencies":{},
-	"engines":{
-		"node":"*"
-	}
-	
+  "name": "ep_foot_note",
+  "version": "0.0.3",
+  "keywords": [
+    "footnote",
+    "footer"
+  ],
+  "description": "Foot Note",
+  "contributors": [
+    "Lokesh N <nlokesh.17@gmail.com>"
+  ],
+  "dependencies": {},
+  "engines": {
+    "node": "*"
+  },
+  "main": "footNote.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/LokeshN/ep_foot_note.git"
+  },
+  "author": "LokeshN",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/LokeshN/ep_foot_note/issues"
+  },
+  "homepage": "https://github.com/LokeshN/ep_foot_note"
 }
