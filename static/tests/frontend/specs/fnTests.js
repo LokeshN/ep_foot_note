@@ -7,7 +7,7 @@ describe("Footnote", function(){
 
 
 
-  it("Add footnote", function(done) {
+  it("Add footnote and Check footnote text is present", function(done) {
 	debugger;
     var inner$ = helper.padInner$;
     var chrome$ = helper.padChrome$;
@@ -27,6 +27,7 @@ describe("Footnote", function(){
     var $fnButton = chrome$("#footnote-button");
     $fnButton.click();
 
+    var fnText = "Sample Footnote";
 	outer$("#fnInput").val("Sample Footnote");
 	var $addButton = outer$("#fnAdd");
 	$addButton.click();
@@ -35,6 +36,9 @@ describe("Footnote", function(){
  	var $fnDomElement = inner$("div:nth-child(2)");
 	var isfnPresent = $fnDomElement.find("sup").length == 1;
 	expect(isfnPresent).to.be(true);
+
+	var isFootNoteTextPresent = (inner$("div:nth-child(7)").text().indexOf(fnText) != -1)
+	expect(isFootNoteTextPresent).to.be(true);
 	done();
 
   });
