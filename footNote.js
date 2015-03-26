@@ -1,5 +1,5 @@
 var eejs = require('ep_etherpad-lite/node/eejs/');
-var Changeset = require("ep_etherpad-lite/static/js/Changeset");
+var ChangeSet = require("ep_etherpad-lite/static/js/Changeset");
 
 function eejsBlock_editbarMenuLeft(hook_name,args,cb){
 	args.content += eejs.require('ep_foot_note/templates/fnButton.ejs');
