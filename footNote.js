@@ -10,8 +10,9 @@ function eejsBlock_editbarMenuLeft(hook_name,args,cb){
 function getLineHTMLForExport(hook,context){
 	var fn = checkFootNoteInLine(context.attribLine,context.apool);
 	if(fn){
-		return '';
+		context.lineContent = '';
 	}
+	return true;
 }
 
 
