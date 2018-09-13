@@ -58,9 +58,9 @@ function addFootNote(footNoteText){
 	 var footNoteCounter = 1;
 	 //find the last line and add the superscript and the text...
 	 var lastLineNo = this.rep.lines.length() - 1;
-	 var fnssPresent =  this.documentAttributeManager.getAttributeOnLine(lastLineNo-1, "fnss");
+	 var fnssPresent =  this.documentAttributeManager.getAttributeOnLine(lastLineNo, "fnss");
 	 if(fnssPresent){
-		footNoteCounter = parseInt(this.rep.lines.atIndex(lastLineNo-1).text.split(" ")[0]);
+		footNoteCounter = parseInt(this.rep.lines.atIndex(lastLineNo).text.split(" ")[0]);
 		if(!isNaN(footNoteCounter))
 			footNoteCounter++;
 	 }
@@ -76,6 +76,7 @@ function addFootNote(footNoteText){
 	 //Add the foot note to the end of the page
 	 var len = this.rep.lines.atIndex(lastLineNo).text.length;
 	 if(len > 0){//means there is some text there.... so press enter and add the foot note
+		this.editorInfo.ace_performSelectionChange([lastLineNo,len], [lastLineNo,len]);
 		this.editorInfo.ace_doReturnKey();
 		//increment the last line index , since Enter key is pressed..
 		lastLineNo++;
