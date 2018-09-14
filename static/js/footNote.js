@@ -53,6 +53,7 @@ function addFootNote(footNoteText){
 
 	var rep = this.rep;
 	var documentAttributeManager = this.documentAttributeManager;
+	var timestamp = Date.now();
 
 	 //find the foot note counter...
 	 var footNoteCounter = 1;
@@ -71,7 +72,9 @@ function addFootNote(footNoteText){
 	this.editorInfo.ace_replaceRange(end,end,footNoteCounter+'');
 	this.rep.selStart = end;
 	this.rep.selEnd = [end[0],end[1]+(footNoteCounter+'').length];
-    this.editorInfo.ace_setAttributeOnSelection("fnss","fn");
+	this.editorInfo.ace_setAttributeOnSelection("fnss","fn");
+	this.editorInfo.ace_setAttributeOnSelection("fnItem-"+timestamp, true);
+	this.editorInfo.ace_setAttributeOnSelection("fnContent", true)
 
 	 //Add the foot note to the end of the page
 	 var len = this.rep.lines.atIndex(lastLineNo).text.length;
@@ -89,13 +92,23 @@ function addFootNote(footNoteText){
 	 this.rep.selEnd = [lastLineNo,(footNoteCounter+'').length];
 
 	 this.editorInfo.ace_setAttributeOnSelection("fnss","fn");
+	 this.editorInfo.ace_setAttributeOnSelection("fnItem-"+timestamp, true);
+	 this.editorInfo.ace_setAttributeOnSelection("fnEnd", true)
 
 }
 
 function aceAttribsToClasses(hook,context){
+	var attribClasses = [];
 	if(context.key == "fnss"){
-		return ['fnss:fn'];
+		attribClasses.push('fnss:fn');
 	}
+	if(/(?:^| )(fnItem-[0-9]*)/.exec(context.key)){
+		attribClasses.push(context.key);
+	}
+	if (context.key === "fnContent" || context.key === "fnEnd") {
+		attribClasses.push(context.key);
+	}
+	return attribClasses;
 }
 
 function aceRegisterBlockElements(){
@@ -180,6 +193,20 @@ var fnPopupManager = (function FootNotePopupManager(){
 
 })();
 
+var aceEditEvent = function (hook, context) {
+	/*console.log('EDIT', context);
+	var rep = context.rep;
+	var counter = 1;
+	for (var i = 0; i < rep.alines.length; i++) {
+		var line = rep.lines.atIndex(i);
+		console.log('LINE', line);
+		console.log($(line.lineNode.outerHTML));
+		var fnContent = $(line.lineNode.outerHTML).find('.fnContent');
+		console.log(fnContent);
+		fnContent.find('sup').html(counter);
+		counter++;
+	}*/
+}
 
 
 
@@ -190,3 +217,4 @@ exports.postAceInit = postAceInit;
 exports.aceInitialized = aceInitialized;
 exports.aceAttribsToClasses = aceAttribsToClasses;
 exports.aceRegisterBlockElements = aceRegisterBlockElements;
+exports.aceEditEvent = aceEditEvent;

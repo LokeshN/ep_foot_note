@@ -5,6 +5,7 @@
 			"pre": ["ep_etherpad-lite/webaccess"],
 			"client_hooks":{
 				 "aceEditorCSS": "ep_foot_note/static/js/footNote",
+				 "aceEditEvent": "ep_foot_note/static/js/footNote",
 				 "aceCreateDomLine": "ep_foot_note/static/js/footNote",
 				 "postAceInit":"ep_foot_note/static/js/footNote",
 				 "aceInitialized":"ep_foot_note/static/js/footNote",
