@@ -75,6 +75,7 @@ function addFootNote(footNoteText){
 	this.editorInfo.ace_setAttributeOnSelection("fnss","fn");
 	this.editorInfo.ace_setAttributeOnSelection("fnItem-"+timestamp, true);
 	this.editorInfo.ace_setAttributeOnSelection("fnContent", true)
+	this.editorInfo.ace_setAttributeOnSelection("sup", true);
 
 	 //Add the foot note to the end of the page
 	 var len = this.rep.lines.atIndex(lastLineNo).text.length;
@@ -93,7 +94,8 @@ function addFootNote(footNoteText){
 
 	 this.editorInfo.ace_setAttributeOnSelection("fnss","fn");
 	 this.editorInfo.ace_setAttributeOnSelection("fnItem-"+timestamp, true);
-	 this.editorInfo.ace_setAttributeOnSelection("fnEnd", true)
+	 this.editorInfo.ace_setAttributeOnSelection("fnEnd", true);
+	 this.editorInfo.ace_setAttributeOnSelection("sup", true);
 
 }
 
@@ -112,7 +114,7 @@ function aceAttribsToClasses(hook,context){
 }
 
 function aceRegisterBlockElements(){
-	return [];
+	return (['fn', 'fnss', 'sup']);
 }
 
 
@@ -193,23 +195,34 @@ var fnPopupManager = (function FootNotePopupManager(){
 
 })();
 
-var aceEditEvent = function (hook, context) {
+var acePostWriteDomLineHTML = function (hook, context) {
 	/*console.log('EDIT', context);
-	var rep = context.rep;
+	var padInner = $('iframe[name="ace_outer"]').contents().find('iframe[name="ace_inner"]').contents();
+	var footNoteContentItems = padInner.find('.fnContent');
+	console.log('footNoteContentItems', footNoteContentItems);
 	var counter = 1;
-	for (var i = 0; i < rep.alines.length; i++) {
-		var line = rep.lines.atIndex(i);
-		console.log('LINE', line);
-		console.log($(line.lineNode.outerHTML));
-		var fnContent = $(line.lineNode.outerHTML).find('.fnContent');
-		console.log(fnContent);
-		fnContent.find('sup').html(counter);
-		counter++;
+	if (footNoteContentItems.length) {
+		$.each(footNoteContentItems, function( index, value ) {
+			var itemIdRegExp = new RegExp('fnItem-[0-9]*','gi');
+			var itemId = itemIdRegExp.exec($(value).attr('class'));
+			if (itemId) {
+				padInner.find('.'+itemId[0]).each(function (key, fnitem) {
+					console.log(fnitem);
+					$(fnitem).text(counter);
+				});
+				counter++;
+			}
+			
+		});
 	}*/
 }
+exports.aceAttribClasses = function(hook, attr){
+	attr.fn = 'tag:sup';
+	attr.fnss = 'tag:sup';
+	attr.sup = 'tag:sup';
 
-
-
+	return attr;
+  }
 //hooks
 exports.aceEditorCSS = aceEditorCSS;
 exports.aceCreateDomLine = aceCreateDomLine;
@@ -217,4 +230,4 @@ exports.postAceInit = postAceInit;
 exports.aceInitialized = aceInitialized;
 exports.aceAttribsToClasses = aceAttribsToClasses;
 exports.aceRegisterBlockElements = aceRegisterBlockElements;
-exports.aceEditEvent = aceEditEvent;
+exports.acePostWriteDomLineHTML = acePostWriteDomLineHTML;

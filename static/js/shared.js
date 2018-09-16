@@ -8,7 +8,7 @@ var collectContentPre = function(hook, context){
   var lineAttributes = state.lineAttributes
 
   if(tname == "fnss"){
-    lineAttributes['fnss'] = 'fn';
+    context.cc.doAttrib(state, tname);
   }
 };
 
