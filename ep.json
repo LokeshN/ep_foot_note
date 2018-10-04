@@ -11,9 +11,8 @@
 				 "aceAttribsToClasses":"ep_foot_note/static/js/footNote",
                                  "aceAttribClasses":"ep_foot_note/static/js/footNote",
 				 "collectContentPre":"ep_foot_note/static/js/shared",
-                                 "collectContentPost":"ep_foot_note/static/js/shared",
-                                 "acePostWriteDomLineHTML": "ep_foot_note/static/js/footNote",
-				 "aceRegisterBlockElements":"ep_foot_note/static/js/footNote"
+                                 "aceRegisterBlockElements":"ep_foot_note/static/js/footNote",
+                                 "postToolbarInit": "ep_foot_note/static/js/footNote"
 			},
 			"hooks":{
 				"collectContentPre":"ep_foot_note/static/js/shared",
@@ -22,7 +21,8 @@
 				"exportHtmlAdditionalTags": "ep_foot_note/footNote",
 				"eejsBlock_editbarMenuLeft":"ep_foot_note/footNote",
 				"getLineHTMLForExport":"ep_foot_note/footNote",
-				"eejsBlock_styles": "ep_foot_note/footNote"
+				"eejsBlock_styles": "ep_foot_note/footNote",
+                                "padInitToolbar": "ep_foot_note/footNote"
 			}
 		}
 	]

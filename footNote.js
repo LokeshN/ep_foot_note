@@ -43,10 +43,23 @@ var aceAttribClasses = function(hook_name, attr, cb){
 	attr.fn  = 'tag:sup';
 	attr.sup = 'tag:sup';
 	cb(attr);
-  }
+};
+
+var padInitToolbar = function (hookName, args) {
+	var toolbar = args.toolbar;
+  
+	var button = toolbar.button({
+		command: 'addFootNote',
+		localizationId: 'ep_foot_note.add_foot_note',
+		class: 'buttonicon fnbtn'
+	});
+  
+	toolbar.registerButton('addFootNote', button);
+};
 
 exports.eejsBlock_editbarMenuLeft = eejsBlock_editbarMenuLeft;
 exports.getLineHTMLForExport = getLineHTMLForExport;
 exports.eejsBlock_styles = eejsBlock_styles;
 exports.aceAttribClasses = aceAttribClasses;
 exports.exportHtmlAdditionalTags = exportHtmlAdditionalTags;
+exports.padInitToolbar = padInitToolbar;

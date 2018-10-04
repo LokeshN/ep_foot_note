@@ -3,24 +3,21 @@ var _ = require('ep_etherpad-lite/static/js/underscore');
 
 
 var collectContentPre = function(hook, context){
+  var footNote = /fnItem-[0-9]*/.exec(context.cls);
   var tname = context.tname;
   var state = context.state;
   var lineAttributes = state.lineAttributes
 
-  if(tname == "fnss"){
-    context.cc.doAttrib(state, tname);
+  if(footNote && footNote[0]) {
+    context.cc.doAttrib(state, 'fnss');
+    context.cc.doAttrib(state, footNote[0]);
   }
-};
-
-var collectContentPost = function(hook, context){
-  var tname = context.tname;
-  var state = context.state;
-  var lineAttributes = state.lineAttributes
-
-  if(tname == 'fnss'){
-    delete lineAttributes['fnss'];
+  if (context.cls && context.cls.indexOf('fnEnd') > -1) {
+    context.cc.doAttrib(context.state, "fnEnd");
+  }
+  if (context.cls && context.cls.indexOf('fnContent') > -1) {
+    context.cc.doAttrib(context.state, "fnContent");
   }
 };
 
 exports.collectContentPre = collectContentPre;
-exports.collectContentPost = collectContentPost;
