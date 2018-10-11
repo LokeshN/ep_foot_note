@@ -9,7 +9,13 @@ function eejsBlock_editbarMenuLeft(hook_name,args,cb){
 
 function getLineHTMLForExport(hook,context){
 	var fn = checkFootNoteInLine(context.attribLine,context.apool);
+	context.lineContent = context.lineContent.replace(/<fnss/g, '<sup');
+	context.lineContent = context.lineContent.replace(/<\/fnss/g, '</sup');
 
+	if (fn) {
+		context.lineContent = '<span class="fnEndLine">' + context.lineContent + '</span>';
+	}
+	
 	return true;
 }
 
@@ -21,7 +27,7 @@ function checkFootNoteInLine(lineAttrib,pool){
 		if(iter.hasNext()){
 
 			var op = iter.next();
-			fn =  ChangeSet.opAttributeValue(op,'fnss',pool);
+			fn =  ChangeSet.opAttributeValue(op,'fnEndLine',pool);
  		}
 
 	}

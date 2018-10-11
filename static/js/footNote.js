@@ -10,7 +10,7 @@ function aceCreateDomLine(name, context){
   //debugger;
   var cls = context.cls;
   var domline = context.domline;
-  var footnote = /fnss/.exec(cls);
+  var footnote = /(?:^| )fnss:([A-Za-z0-9]*)/.exec(cls);
   var isPresent;
 
  	if (footnote){
@@ -28,7 +28,20 @@ function aceCreateDomLine(name, context){
   return [];
 }
 
-
+function aceDomLineProcessLineAttributes (name, context) {
+	var cls = context.cls;
+	
+	
+	if(cls && cls.indexOf('fnEnd') > -1) {		
+		var modifier = {
+		preHtml: '',
+		postHtml: '',
+		processedMarker: true
+		};
+		return [modifier];
+	}
+	return [];
+}
 
 function postAceInit(hook,context){
 	var hs = $('#footnote-button');
@@ -39,24 +52,23 @@ function postAceInit(hook,context){
 }
 
 
-
 function aceInitialized(hook,context){
 	var editorInfo = context.editorInfo;
 	editorInfo.ace_addFootNote = _(addFootNote).bind(context);
 	fixLineOrder = _(fixLineOrder).bind(context);
 }
 
+
 var fixLineOrder = function () {
-	console.log('LO FIX')
 	var rep = this.rep;
 	var editorInfo = this.editorInfo;
-	
-	console.log('REP', rep, editorInfo);
+        var documentAttributeManager = this.documentAttributeManager;
 	var html = this.editorInfo.ace_getFormattedCode();
-	console.log(html);
 	
 	var supItems = [];
+	var sIds = [];
 	var endItems = [];
+	var eIds = [];
 	var endItemIndex = null;
 
 	// To fix numbering and order
@@ -66,15 +78,16 @@ var fixLineOrder = function () {
 	   var textItems =	 $(line).children().map(function (ik, item) {
 		   var itemText = $(item).text();
 		   if ($(item).hasClass('fnContent')) {
-			   console.log('ITEM', item);
 			   var itemId = /fnItem-[0-9]*/gi.exec($(item).attr('class'));
 			   
 			   supItems.push({
 				   lineIndex: lineIndex,
 				   start: curPos,
 				   end: (curPos + itemText.length),
+				   text: itemText,
 				   id: itemId[0]
 			   });
+			   sIds.push(itemId[0]);
 		   }
 
 		   if ($(item).hasClass('fnEnd')) {
@@ -87,6 +100,7 @@ var fixLineOrder = function () {
 				   id: itemId[0],
 				   lineText: lineText
 			   });
+			   eIds.push(itemId[0]);
 		   }
 
 		   curPos += itemText.length;
@@ -95,23 +109,35 @@ var fixLineOrder = function () {
 	   });
 
 	});
-	var supCount = 1;
+	
+/* To remove orbs
+	var startIds = sIds.filter(function(i) {return eIds.indexOf(i) < 0;});
+	var endIds = eIds.filter(function(i) {return sIds.indexOf(i) < 0;});
+	var singleIds = startIds.concat(endIds);*/
 
+	var supCount = supItems.length;
+	endItemIndex += (supCount -1); 
+	supItems = supItems.reverse();
 	$.each(supItems, function (key, item){
 	   editorInfo.ace_performSelectionChange([item.lineIndex, item.start],[item.lineIndex,item.end]);
 	   editorInfo.ace_replaceRange([item.lineIndex, item.start], [item.lineIndex,item.end], supCount+'');
 	   rep.selStart = [item.lineIndex, item.start];
 	   rep.selEnd = [item.lineIndex,item.end];
+	   if ((item.end - item.start) !== (supCount+'').length) {
+		editorInfo.ace_performSelectionChange([item.lineIndex, item.start],[item.lineIndex, (item.start + (supCount+'').length)]);
+	    rep.selEnd = [item.lineIndex, (item.start + (supCount+'').length)];
+	   }
 	   editorInfo.ace_setAttributeOnSelection("fnss", true);
 	   editorInfo.ace_setAttributeOnSelection(item.id, true);
 	   editorInfo.ace_setAttributeOnSelection("fnContent", true);
+
+	   
 	   var endItem = endItems.find(function (eItem) {
 		   return eItem.id === item.id;
 	   });
 
 	   var endLineText = rep.lines.atIndex(endItemIndex).text;
 	   editorInfo.ace_performSelectionChange([endItemIndex, 0],[endItemIndex, endLineText.length]);
-	   console.log('ENDITEM', endItem)
 	   editorInfo.ace_replaceRange([endItemIndex, 0],[endItemIndex, endLineText.length], supCount + ' ' + endItem.lineText.substr(endItem.lineText.split(' ')[0].length));
 	   rep.selStart = [endItemIndex, 0];
 	   rep.selEnd = [endItemIndex, (supCount+'').length];
@@ -119,10 +145,11 @@ var fixLineOrder = function () {
 	   editorInfo.ace_setAttributeOnSelection("fnss", true);
 	   editorInfo.ace_setAttributeOnSelection(endItem.id, true);
 	   editorInfo.ace_setAttributeOnSelection("fnEnd", true);
-
-	   endItemIndex++;
-	   supCount++;
+	   documentAttributeManager.setAttributeOnLine(endItemIndex, 'fnEndLine', true);
+	   endItemIndex--;
+	   supCount--;
 	});
+	
 };
 /*
  * Method which adds the superscript next to the cursor and also adds the footnote to the bottom of the page
@@ -138,9 +165,14 @@ function addFootNote(footNoteText){
 	 var footNoteCounter = 1;
 	 //find the last line and add the superscript and the text...
 	 var lastLineNo = this.rep.lines.length() - 1;
-	 var fnssPresent =  this.documentAttributeManager.getAttributeOnLine(lastLineNo, "fnss");
+	 var fnssPresent =  this.documentAttributeManager.getAttributeOnLine(lastLineNo, "fnEndLine");
 	 if(fnssPresent){
-		footNoteCounter = parseInt(this.rep.lines.atIndex(lastLineNo).text.split(" ")[0]);
+		var textItem = this.rep.lines.atIndex(lastLineNo).text.split(" ")[0];
+		if (textItem[0] === '*'){
+			textItem = textItem.substr(1);
+		}
+
+		footNoteCounter = parseInt(textItem);
 		if(!isNaN(footNoteCounter))
 			footNoteCounter++;
 	 }
@@ -173,7 +205,8 @@ function addFootNote(footNoteText){
 	 this.editorInfo.ace_setAttributeOnSelection("fnss", true);
 	 this.editorInfo.ace_setAttributeOnSelection("fnItem-"+timestamp, true);
 	 this.editorInfo.ace_setAttributeOnSelection("fnEnd", true);
-	 fixLineOrder();
+	 this.documentAttributeManager.setAttributeOnLine(lastLineNo, 'fnEndLine', true);
+         fixLineOrder();
 
 }
 
@@ -188,11 +221,15 @@ function aceAttribsToClasses(hook,context){
 	if (context.key === "fnContent" || context.key === "fnEnd") {
 		attribClasses.push(context.key);
 	}
+	if (context.key === "fnEndLine") {
+		attribClasses.push(context.key);
+	}
+
 	return attribClasses;
 }
 
 function aceRegisterBlockElements(){
-	return (['sup']);
+	return (['fn', 'fnss', 'sup']);
 }
 
 
@@ -201,7 +238,6 @@ function aceEditorCSS(){
 }
 
 var postToolbarInit = function (hookName, context) {
-	console.log('CONTEXT PTI', context);
     var editbar = context.toolbar;
   
     editbar.registerCommand('addFootNote', function () {
@@ -281,7 +317,9 @@ var fnPopupManager = (function FootNotePopupManager(){
 })();
 
 exports.aceAttribClasses = function(hook, attr){
+	attr.fn = 'tag:sup';
 	attr.fnss = 'tag:sup';
+	attr.sup = 'tag:sup';
 
 	return attr;
   }
@@ -293,3 +331,4 @@ exports.aceInitialized = aceInitialized;
 exports.aceAttribsToClasses = aceAttribsToClasses;
 exports.aceRegisterBlockElements = aceRegisterBlockElements;
 exports.postToolbarInit = postToolbarInit;
+exports.aceDomLineProcessLineAttributes = aceDomLineProcessLineAttributes;

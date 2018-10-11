@@ -20,4 +20,14 @@ var collectContentPre = function(hook, context){
   }
 };
 
+
+var collectContentPost = function(hook, context){
+  var state = context.state;
+  var lineAttributes = state.lineAttributes;
+  if(context.cls && context.cls.indexOf('fnEnd') > -1) {
+    delete lineAttributes['fnEndLine'];
+  }
+};
+
 exports.collectContentPre = collectContentPre;
+exports.collectContentPost = collectContentPost;
