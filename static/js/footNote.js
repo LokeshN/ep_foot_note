@@ -256,7 +256,10 @@ var fnPopupManager = (function FootNotePopupManager(){
 		container:null,
 
 		insertPopupContainer:function(){
-			 $('iframe[name="ace_outer"]').contents().find("#outerdocbody").prepend('<div id="footNotePopup" class="fn-popup" style="display: block;"><div><input id="fnInput" type="text"/></div> <div style="padding-top:10px"><input type="button" id="fnAdd" value="Add"/><input style="margin-left:10px" type="button" value="Cancel" id="fnCancel"/></div></div>');
+			var cancelText = html10n.get('ep_foot_note.btn_cancel') || 'Cancel';
+			var addText = html10n.get('ep_foot_note.btn_submit') || 'Submit';
+			var inputtext = html10n.get('ep_foot_note.input_placeholder') || 'Add your footnote here…';
+			 $('iframe[name="ace_outer"]').contents().find("#outerdocbody").prepend('<div id="footNotePopup" class="fn-popup" style="display: block;"><div id="footNotePopupHeader"><div id="footNotePopupTitle"><span data-l10n-id="ep_foot_note.title">Add a footnote</span></div><div id="footNotePopupDescription"><span data-l10n-id="ep_foot_note.description">Footnotes can include anything from a citation to parenthetical information, outside sources, copyright permissions, background information. The selected text will receive a number which will refer to the explanation on the bottom of the topic.</span></div></div><div><input id="fnInput" type="text" placeholder="'+inputtext+'"/></div><div id="footNotePopupFooter"><input type="button" id="fnAdd" value="'+addText+'"/><input type="button" value="'+cancelText+'" id="fnCancel"/></div></div>');
   			 this.container = $('iframe[name="ace_outer"]').contents().find('#footNotePopup');//this.padOuter.find('#footNotePopup');
 			 this.addEventListener();
 		},
