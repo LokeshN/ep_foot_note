@@ -1,11 +1,6 @@
 var eejs = require('ep_etherpad-lite/node/eejs/');
 var ChangeSet = require("ep_etherpad-lite/static/js/Changeset");
 
-function eejsBlock_editbarMenuLeft(hook_name,args,cb){
-	args.content += eejs.require('ep_foot_note/templates/fnButton.ejs');
-	return cb();
-
-}
 
 function getLineHTMLForExport(hook,context){
 	var fn = checkFootNoteInLine(context.attribLine,context.apool);
@@ -15,7 +10,7 @@ function getLineHTMLForExport(hook,context){
 	if (fn) {
 		context.lineContent = '<span class="fnEndLine">' + context.lineContent + '</span>';
 	}
-	
+
 	return true;
 }
 
@@ -53,17 +48,16 @@ var aceAttribClasses = function(hook_name, attr, cb){
 
 var padInitToolbar = function (hookName, args) {
 	var toolbar = args.toolbar;
-  
+
 	var button = toolbar.button({
 		command: 'addFootNote',
-		localizationId: 'ep_foot_note.add_foot_note',
+		localizationId: 'ep_foot_note.toolbar.add_foot_note.title',
 		class: 'buttonicon fnbtn'
 	});
-  
+
 	toolbar.registerButton('addFootNote', button);
 };
 
-exports.eejsBlock_editbarMenuLeft = eejsBlock_editbarMenuLeft;
 exports.getLineHTMLForExport = getLineHTMLForExport;
 exports.eejsBlock_styles = eejsBlock_styles;
 exports.aceAttribClasses = aceAttribClasses;

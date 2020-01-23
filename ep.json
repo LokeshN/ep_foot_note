@@ -10,7 +10,7 @@
                 "aceAttribsToClasses":"ep_foot_note/static/js/footNote",
                 "aceAttribClasses":"ep_foot_note/static/js/footNote",
                 "collectContentPre":"ep_foot_note/static/js/shared",
-		"aceRegisterBlockElements":"ep_foot_note/static/js/footNote",
+		        "aceRegisterBlockElements":"ep_foot_note/static/js/footNote",
                 "postToolbarInit": "ep_foot_note/static/js/footNote",
                 "collectContentPost": "ep_foot_note/static/js/shared",
                 "aceDomLineProcessLineAttributes": "ep_foot_note/static/js/footNote"
@@ -20,7 +20,7 @@
                 "aceAttribClasses": "ep_foot_note/footNote",
                 "exportHtmlAdditionalTags": "ep_foot_note/footNote",
                 "getLineHTMLForExport":"ep_foot_note/footNote",
-		"eejsBlock_styles": "ep_foot_note/footNote",
+		        "eejsBlock_styles": "ep_foot_note/footNote",
                 "padInitToolbar": "ep_foot_note/footNote",
                 "collectContentPost": "ep_foot_note/static/js/shared"
             }
