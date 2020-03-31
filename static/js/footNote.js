@@ -30,9 +30,9 @@ function aceCreateDomLine(name, context){
 
 function aceDomLineProcessLineAttributes (name, context) {
 	var cls = context.cls;
-	
-	
-	if(cls && cls.indexOf('fnEnd') > -1) {		
+
+
+	if(cls && cls.indexOf('fnEnd') > -1) {
 		var modifier = {
 		preHtml: '',
 		postHtml: '',
@@ -64,7 +64,7 @@ var fixLineOrder = function () {
 	var editorInfo = this.editorInfo;
         var documentAttributeManager = this.documentAttributeManager;
 	var html = this.editorInfo.ace_getFormattedCode();
-	
+
 	var supItems = [];
 	var sIds = [];
 	var endItems = [];
@@ -79,7 +79,7 @@ var fixLineOrder = function () {
 		   var itemText = $(item).text();
 		   if ($(item).hasClass('fnContent')) {
 			   var itemId = /fnItem-[0-9]*/gi.exec($(item).attr('class'));
-			   
+
 			   supItems.push({
 				   lineIndex: lineIndex,
 				   start: curPos,
@@ -92,7 +92,7 @@ var fixLineOrder = function () {
 
 		   if ($(item).hasClass('fnEnd')) {
 			   var itemId = /fnItem-[0-9]*/gi.exec($(item).attr('class'));
-			   
+
 			   if (!endItemIndex) {
 				   endItemIndex = lineIndex;
 			   }
@@ -109,14 +109,14 @@ var fixLineOrder = function () {
 	   });
 
 	});
-	
+
 /* To remove orbs
 	var startIds = sIds.filter(function(i) {return eIds.indexOf(i) < 0;});
 	var endIds = eIds.filter(function(i) {return sIds.indexOf(i) < 0;});
 	var singleIds = startIds.concat(endIds);*/
 
 	var supCount = supItems.length;
-	endItemIndex += (supCount -1); 
+	endItemIndex += (supCount -1);
 	supItems = supItems.reverse();
 	$.each(supItems, function (key, item){
 	   editorInfo.ace_performSelectionChange([item.lineIndex, item.start],[item.lineIndex,item.end]);
@@ -131,7 +131,7 @@ var fixLineOrder = function () {
 	   editorInfo.ace_setAttributeOnSelection(item.id, true);
 	   editorInfo.ace_setAttributeOnSelection("fnContent", true);
 
-	   
+
 	   var endItem = endItems.find(function (eItem) {
 		   return eItem.id === item.id;
 	   });
@@ -149,13 +149,12 @@ var fixLineOrder = function () {
 	   endItemIndex--;
 	   supCount--;
 	});
-	
+
 };
 /*
  * Method which adds the superscript next to the cursor and also adds the footnote to the bottom of the page
  */
 function addFootNote(footNoteText){
-
 	var rep = this.rep;
 	var documentAttributeManager = this.documentAttributeManager;
 	var timestamp = Date.now();
@@ -179,6 +178,7 @@ function addFootNote(footNoteText){
 
 	//set the superscript after the selection
 	var start = rep.selStart;
+	var initialEnd = [rep.selEnd[0], (rep.selEnd[1]+footNoteCounter.toString().length + 1)];
 	var end = rep.selEnd;
 	this.editorInfo.ace_replaceRange(end,end,footNoteCounter+'');
 	this.rep.selStart = end;
@@ -187,27 +187,29 @@ function addFootNote(footNoteText){
 	this.editorInfo.ace_setAttributeOnSelection("fnItem-"+timestamp, true);
 	this.editorInfo.ace_setAttributeOnSelection("fnContent", true);
 
-	 //Add the foot note to the end of the page
-	 var len = this.rep.lines.atIndex(lastLineNo).text.length;
-	 if(len > 0){//means there is some text there.... so press enter and add the foot note
+	//Add the foot note to the end of the page
+	var len = this.rep.lines.atIndex(lastLineNo).text.length;
+	if(len > 0){//means there is some text there.... so press enter and add the foot note
 		this.editorInfo.ace_performSelectionChange([lastLineNo,len], [lastLineNo,len]);
 		this.editorInfo.ace_doReturnKey();
 		//increment the last line index , since Enter key is pressed..
 		lastLineNo++;
 		//get lenth again
 		len = this.rep.lines.atIndex(lastLineNo).text.length;
-	 }
+	}
 
-	 this.editorInfo.ace_replaceRange([lastLineNo,0],[lastLineNo,len],footNoteCounter + ' '+footNoteText);
-	 this.rep.selStart = [lastLineNo,0];
-	 this.rep.selEnd = [lastLineNo,(footNoteCounter+'').length];
+	this.editorInfo.ace_replaceRange([lastLineNo,0],[lastLineNo,len],footNoteCounter+ ' ' +footNoteText);
+	this.rep.selStart = [lastLineNo,0];
+	this.rep.selEnd = [lastLineNo,(footNoteCounter+'').length];
 
-	 this.editorInfo.ace_setAttributeOnSelection("fnss", true);
-	 this.editorInfo.ace_setAttributeOnSelection("fnItem-"+timestamp, true);
-	 this.editorInfo.ace_setAttributeOnSelection("fnEnd", true);
-	 this.documentAttributeManager.setAttributeOnLine(lastLineNo, 'fnEndLine', true);
-         fixLineOrder();
+	this.editorInfo.ace_setAttributeOnSelection("fnss", true);
+	this.editorInfo.ace_setAttributeOnSelection("fnItem-"+timestamp, true);
+	this.editorInfo.ace_setAttributeOnSelection("fnEnd", true);
+	this.documentAttributeManager.setAttributeOnLine(lastLineNo, 'fnEndLine', true);
+	fixLineOrder();
+	this.editorInfo.ace_performSelectionChange(initialEnd, initialEnd);
 
+	this.editorInfo.ace_focus();
 }
 
 function aceAttribsToClasses(hook,context){
@@ -239,7 +241,7 @@ function aceEditorCSS(){
 
 var postToolbarInit = function (hookName, context) {
     var editbar = context.toolbar;
-  
+
     editbar.registerCommand('addFootNote', function () {
 		fnPopupManager.showPopup(context);
     });
@@ -278,29 +280,36 @@ var fnPopupManager = (function FootNotePopupManager(){
 				this.insertPopupContainer();
 			this.container.show();
 			this.setFootNoteContext(footNoteContext);
+			setTimeout(function () {
+				$('iframe[name="ace_outer"]').contents().find('#fnInput').focus();
+			});
 		},
 
 		addEventListener:function(){
 
+			var doInsertFootNote = function () {
+				var footNoteText = $('iframe[name="ace_outer"]').contents().find('#fnInput').val();
+				var container = $('iframe[name="ace_outer"]').contents().find('#footNotePopup');//this.padOuter.find('#footNotePopup');
+				container.hide();
 
-			//add on click event listener..
-			 this.container.find('#fnAdd').on('click',function(){
-				 var footNoteText = $('iframe[name="ace_outer"]').contents().find('#fnInput').val();
-				 var container = $('iframe[name="ace_outer"]').contents().find('#footNotePopup');//this.padOuter.find('#footNotePopup');
-				 container.hide();
+				if(footNoteText == "")return;
 
-				 if(footNoteText == "")return;
-
-				 fnPopupManager.getFootNoteContext().ace.callWithAce(function(ace){
+				fnPopupManager.getFootNoteContext().ace.callWithAce(function(ace){
 								ace.ace_addFootNote(footNoteText);
 								$('iframe[name="ace_outer"]').contents().find('#fnInput').val("")
 						},'addFootNote' , true);
 
-				// fnPopupManager.getFootNoteContext().callAddFootNote(this.footNoteText);
-			    //var form = $(this).parent().parent();
-			    //$('iframe[name="ace_outer"]').contents().find('#comments').find('#newComment').addClass("hidden").removeClass("visible");
+			}
 
-  			});
+			$('iframe[name="ace_outer"]').contents().find('#fnInput').focus();
+			//add on click event listener..
+			$('iframe[name="ace_outer"]').contents().find('#fnInput').on('keyup', function (e) {
+				console.log(e);
+				if (e.keyCode === 13) {
+					doInsertFootNote();
+				}
+			})
+			this.container.find('#fnAdd').on('click', doInsertFootNote);
 			//cancel click event listener
 			this.container.find('#fnCancel').on('click',function(){
 				 //this.footNoteText = $("#fnInput").text();
@@ -325,7 +334,45 @@ exports.aceAttribClasses = function(hook, attr){
 	attr.sup = 'tag:sup';
 
 	return attr;
-  }
+}
+
+exports.aceEditEvent = function (hook, context) {
+	if (context.callstack.type !== 'setup' && context.callstack.docTextChanged && !context.callstack.type !== 'handleKeyEvent') {
+		var rep = context.rep;
+		var editorInfo = context.editorInfo;
+		var startLine = rep.selStart[0];
+		var startPos = rep.selStart[1];
+		var attribs = context.documentAttributeManager.getAttributesOnPosition(startLine, startPos-1);
+
+		var itemId;
+		var isContentElem = false;
+		attribs.forEach(function (elem) {
+			var attrName = elem[0];
+			if (attrName === 'fnContent') {
+				isContentElem = true;
+			} else if (attrName.indexOf("fnItem") > -1) {
+				console.log('attrName', attrName);
+				itemId = attrName;
+			}
+		});
+
+		if (isContentElem) {
+			editorInfo.ace_performSelectionChange([startLine, startPos-1], rep.selEnd);
+			editorInfo.ace_setAttributeOnSelection('fnss', false);
+			editorInfo.ace_setAttributeOnSelection('fnContent', false);
+			editorInfo.ace_setAttributeOnSelection(itemId, false);
+			editorInfo.ace_performSelectionChange([startLine, startPos], [startLine, startPos]);
+		}
+	}
+	if (context.callstack.type === 'addFootNote') {
+		var repEnd = [context.rep.selEnd[0], context.rep.selEnd[1]];
+		console.log(repEnd);
+		console.log(context);
+		context.editorInfo.ace_performSelectionChange(repEnd, repEnd);
+		context.editorInfo.ace_focus();
+	}
+}
+
 //hooks
 exports.aceEditorCSS = aceEditorCSS;
 exports.aceCreateDomLine = aceCreateDomLine;
