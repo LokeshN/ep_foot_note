@@ -261,7 +261,7 @@ var fnPopupManager = (function FootNotePopupManager(){
 			var cancelText = html10n.get('ep_foot_note.btn_cancel') || 'Cancel';
 			var addText = html10n.get('ep_foot_note.btn_submit') || 'Submit';
 			var inputtext = html10n.get('ep_foot_note.input_placeholder') || 'Add your footnote here…';
-			 $('iframe[name="ace_outer"]').contents().find("#outerdocbody").prepend('<div id="footNotePopup" class="fn-popup" style="display: block;"><div id="footNotePopupHeader"><div id="footNotePopupTitle"><span data-l10n-id="ep_foot_note.title">Add a footnote</span></div><div id="footNotePopupDescription"><span data-l10n-id="ep_foot_note.description">Footnotes can include anything from a citation to parenthetical information, outside sources, copyright permissions, background information. The selected text will receive a number which will refer to the explanation on the bottom of the topic.</span></div></div><div><input id="fnInput" type="text" placeholder="'+inputtext+'"/></div><div id="footNotePopupFooter"><input type="button" id="fnAdd" value="'+addText+'"/><input type="button" value="'+cancelText+'" id="fnCancel"/></div></div>');
+			 $('iframe[name="ace_outer"]').contents().find("#outerdocbody").prepend('<div id="footNotePopup" class="fn-popup popup popup-content" style="display: block;"><div id="footNotePopupHeader"><h2 data-l10n-id="ep_foot_note.title">Add a footnote</h2><div id="footNotePopupDescription"><span data-l10n-id="ep_foot_note.description">Footnotes can include anything from a citation to parenthetical information, outside sources, copyright permissions, background information. The selected text will receive a number which will refer to the explanation on the bottom of the topic.</span></div></div><div><input id="fnInput" type="text" placeholder="'+inputtext+'"/></div><div id="footNotePopupFooter"><input type="button" class="btn btn-primary" id="fnAdd" value="'+addText+'"/><input type="button" class="btn" value="'+cancelText+'" id="fnCancel"/></div></div>');
   			 this.container = $('iframe[name="ace_outer"]').contents().find('#footNotePopup');//this.padOuter.find('#footNotePopup');
 			 this.addEventListener();
 		},
@@ -278,6 +278,7 @@ var fnPopupManager = (function FootNotePopupManager(){
 			//$("#footNotePopup").show();
 			if(this.container == null)
 				this.insertPopupContainer();
+			this.container.addClass('popup-show');
 			this.container.show();
 			this.setFootNoteContext(footNoteContext);
 			setTimeout(function () {
@@ -290,6 +291,7 @@ var fnPopupManager = (function FootNotePopupManager(){
 			var doInsertFootNote = function () {
 				var footNoteText = $('iframe[name="ace_outer"]').contents().find('#fnInput').val();
 				var container = $('iframe[name="ace_outer"]').contents().find('#footNotePopup');//this.padOuter.find('#footNotePopup');
+				container.removeClass('popup-show');
 				container.hide();
 
 				if(footNoteText == "")return;
@@ -315,6 +317,7 @@ var fnPopupManager = (function FootNotePopupManager(){
 				 //this.footNoteText = $("#fnInput").text();
 				 $('iframe[name="ace_outer"]').contents().find('#fnInput').val("")
 				 var container = $('iframe[name="ace_outer"]').contents().find('#footNotePopup');//this.padOuter.find('#footNotePopup');
+				 container.removeClass('popup-show');
 				 container.hide();
 			    //var form = $(this).parent().parent();
 			    //$('iframe[name="ace_outer"]').contents().find('#comments').find('#newComment').addClass("hidden").removeClass("visible");
