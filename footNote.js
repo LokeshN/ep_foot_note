@@ -8,7 +8,7 @@ function getLineHTMLForExport(hook,context){
 	context.lineContent = context.lineContent.replace(/<\/fnss/g, '</sup');
 
 	if (fn) {
-		context.lineContent = '<span class="fnEndLine">' + context.lineContent + '</span>';
+		context.lineContent = '<span class="fnEndLine">' + context.lineContent.substr(1) + '</span>';
 	}
 
 	return true;
