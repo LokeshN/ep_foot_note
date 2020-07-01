@@ -2,16 +2,15 @@ var eejs = require('ep_etherpad-lite/node/eejs/');
 var ChangeSet = require("ep_etherpad-lite/static/js/Changeset");
 
 
-function getLineHTMLForExport(hook,context){
+function getLineHTMLForExport (hook,context){
 	var fn = checkFootNoteInLine(context.attribLine,context.apool);
 	context.lineContent = context.lineContent.replace(/<fnss/g, '<sup');
 	context.lineContent = context.lineContent.replace(/<\/fnss/g, '</sup');
 
 	if (fn) {
-		context.lineContent = '<span class="fnEndLine">' + context.lineContent.substr(1) + '</span>';
+		context.lineContent = '<span class="fnEndLine">' + context.lineContent + '</span>';
 	}
-
-	return true;
+	return context.lineContent;
 }
 
 
