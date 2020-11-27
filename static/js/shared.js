@@ -1,33 +1,29 @@
-var _ = require('ep_etherpad-lite/static/js/underscore');
+'use strict';
 
+exports.collectContentPre = (hook, context, cb) => {
+  const footNote = /fnItem-[0-9]*/.exec(context.cls);
+  const state = context.state;
 
-
-var collectContentPre = function(hook, context){
-  var footNote = /fnItem-[0-9]*/.exec(context.cls);
-  var tname = context.tname;
-  var state = context.state;
-  var lineAttributes = state.lineAttributes
-
-  if(footNote && footNote[0]) {
+  if (footNote && footNote[0]) {
     context.cc.doAttrib(state, 'fnss');
     context.cc.doAttrib(state, footNote[0]);
   }
   if (context.cls && context.cls.indexOf('fnEnd') > -1) {
-    context.cc.doAttrib(context.state, "fnEnd");
+    context.cc.doAttrib(context.state, 'fnEnd');
   }
   if (context.cls && context.cls.indexOf('fnContent') > -1) {
-    context.cc.doAttrib(context.state, "fnContent");
+    context.cc.doAttrib(context.state, 'fnContent');
   }
+
+  return cb();
 };
 
-
-var collectContentPost = function(hook, context){
-  var state = context.state;
-  var lineAttributes = state.lineAttributes;
-  if(context.cls && context.cls.indexOf('fnEnd') > -1) {
-    delete lineAttributes['fnEndLine'];
+exports.collectContentPost = (hook, context, cb) => {
+  const state = context.state;
+  const lineAttributes = state.lineAttributes;
+  if (context.cls && context.cls.indexOf('fnEnd') > -1) {
+    delete lineAttributes.fnEndLine;
   }
-};
 
-exports.collectContentPre = collectContentPre;
-exports.collectContentPost = collectContentPost;
+  return cb();
+};
