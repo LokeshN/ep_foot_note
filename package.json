@@ -10,9 +10,6 @@
     "Lokesh N <nlokesh.17@gmail.com>"
   ],
   "dependencies": {},
-  "engines": {
-    "node": "*"
-  },
   "main": "footNote.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

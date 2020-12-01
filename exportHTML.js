@@ -26,7 +26,8 @@ exports.getLineHTMLForExport = async (hook, context) => {
     text = context.text.replace('*', '');
   }
   if (fn) {
-    context.lineContent = `<span class="fnEndLine">${context.lineContent.replace(context.text, text)}</span>`;
+    const replacedText = context.lineContent.replace(context.text, text);
+    context.lineContent = `<span class="fnEndLine">${replacedText}</span>`;
   }
 
   return context.lineContent;

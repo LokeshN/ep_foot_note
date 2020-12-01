@@ -43,14 +43,15 @@ exports.aceDomLineProcessLineAttributes = (name, context) => {
 
 const _getFirstFNLineIndex = () => {
   let endLineIndex = null;
-  const padInner = $('iframe[name="ace_outer"]').contents().find('iframe[name="ace_inner"]').contents();
+  const padOuter = $('iframe[name="ace_outer"]').contents();
+  const padInner = padOuter.find('iframe[name="ace_inner"]').contents();
   const documentLines = padInner.find('div.ace-line');
   documentLines.each((lineIndex, line) => {
     const supTags = $(line).find('.sup');
     if (!endLineIndex && supTags.length === 1) {
-      const match =  /fnItem-[0-9]*/gi.exec($(supTags[0]).attr('class'));
-      if (match && padInner.find('.'+match[0]).length > 1) {
-        if ($(line).attr('id') === padInner.find('.'+match[0]).last().parent().attr('id')) {
+      const match = /fnItem-[0-9]*/gi.exec($(supTags[0]).attr('class'));
+      if (match && padInner.find(`.${match[0]}`).length > 1) {
+        if ($(line).attr('id') === padInner.find(`.${match[0]}`).last().parent().attr('id')) {
           endLineIndex = lineIndex;
         }
       }
@@ -67,38 +68,47 @@ let fixLineOrder = function () {
   const editorInfo = this.editorInfo;
   let counter = 1;
   const lastLineTexts = [];
-  const padInner = $('iframe[name="ace_outer"]').contents().find('iframe[name="ace_inner"]').contents();
+  const padOuter = $('iframe[name="ace_outer"]').contents();
+  const padInner = padOuter.find('iframe[name="ace_inner"]').contents();
   padInner.find('.sup').each((index, item) => {
-    const match =  /fnItem-[0-9]*/gi.exec($(item).attr('class'));
-    if(match && fnIds.indexOf(match[0]) === -1) {
-      const fnPair = padInner.find('.'+match[0]);
+    const match = /fnItem-[0-9]*/gi.exec($(item).attr('class'));
+    if (match && fnIds.indexOf(match[0]) === -1) {
+      const fnPair = padInner.find(`.${match[0]}`);
       if (fnPair.length > -1) {
-        padInner.find('.'+match[0]).find('sup').text(counter);
-        lastLineTexts.push({id: match[0], text: $(fnPair[1]).parent().text().replace(counter, '').replace('*', '').trim()});
+        padInner.find(`.${match[0]}`).find('sup').text(counter);
+        lastLineTexts.push({
+          id: match[0],
+          text: $(fnPair[1]).parent().text().replace(counter, '').replace('*', '').trim(),
+        });
         fnIds.push(match[0]);
         counter++;
       } else {
-        fnPair.remove(); //remove orbs
+        fnPair.remove(); // remove orbs
       }
     }
   });
-  let lastLineIndex = _getFirstFNLineIndex()
+  let lastLineIndex = _getFirstFNLineIndex();
   if (!lastLineIndex) return;
-  lastLineTexts.forEach(function (textItem, index) {
+  lastLineTexts.forEach((textItem, index) => {
     const lastLine = rep.lines.atIndex(lastLineIndex);
     let len = 0;
     if (lastLine && lastLine.text) {
       len = lastLine.text.length;
     }
     editorInfo.ace_performSelectionChange([lastLineIndex, 0], [lastLineIndex, len]);
-    editorInfo.ace_replaceRange([lastLineIndex, 0], [lastLineIndex, len], `${index+1} ${textItem.text}`);
+    editorInfo.ace_replaceRange(
+        [lastLineIndex, 0],
+        [lastLineIndex, len],
+        `${index + 1} ${textItem.text}`
+    );
     rep.selStart = [lastLineIndex, 0];
-    rep.selEnd = [lastLineIndex, (`${index+1}`).length];
+    rep.selEnd = [lastLineIndex, (`${index + 1}`).length];
     editorInfo.ace_setAttributeOnSelection('fnss', true);
     editorInfo.ace_setAttributeOnSelection(textItem.id, true);
     editorInfo.ace_setAttributeOnSelection('fnEnd', true);
-    if(documentAttributeManager.getAttributeOnLine(lastLineIndex, 'fnEndLine') !== '')
+    if (documentAttributeManager.getAttributeOnLine(lastLineIndex, 'fnEndLine') !== '') {
       documentAttributeManager.setAttributeOnLine(lastLineIndex, 'fnEndLine', textItem.id);
+    }
     lastLineIndex++;
   });
 };
@@ -106,8 +116,8 @@ let fixLineOrder = function () {
 const _getFootnoteCount = (html) => {
   const classes = [];
   $(html).find('.sup').each((index, item) => {
-    const match =  /fnItem-[0-9]*/gi.exec($(item).attr('class'));
-    if(match && classes.indexOf(match[0]) === -1) {
+    const match = /fnItem-[0-9]*/gi.exec($(item).attr('class'));
+    if (match && classes.indexOf(match[0]) === -1) {
       classes.push(match[0]);
     }
   });
@@ -118,12 +128,12 @@ const _getFootnoteCount = (html) => {
  * Method which adds the superscript next to the cursor
  * and also adds the footnote to the bottom of the page
  */
-let addFootNote = function (footNoteText) {
+const addFootNote = function (footNoteText) {
   const editorInfo = this.editorInfo;
   const rep = this.rep;
   const fnId = `fnItem-${Date.now()}`;
   // find the foot note counter...
-  let fnCounter = _getFootnoteCount(editorInfo.ace_getFormattedCode())+1;
+  const fnCounter = _getFootnoteCount(editorInfo.ace_getFormattedCode()) + 1;
   // find the last line and add the superscript and the text...
   let lastLNo = rep.lines.length() - 1;
 
@@ -236,7 +246,7 @@ exports.postAceInit = (hook, context) => {
   });
 };
 
-exports.aceInitialized = function (hook, context) {
+exports.aceInitialized = (hook, context) => {
   const editorInfo = context.editorInfo;
   editorInfo.ace_addFootNote = _(addFootNote).bind(context);
   fixLineOrder = _(fixLineOrder).bind(context);

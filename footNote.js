@@ -3,17 +3,17 @@
 const eejs = require('ep_etherpad-lite/node/eejs/');
 const settings = require('ep_etherpad-lite/node/utils/Settings');
 
-exports.eejsBlock_styles = (hook_name, args, cb) => {
+exports.eejsBlock_styles = (hook, args, cb) => {
   args.content += eejs.require('ep_foot_note/templates/styles.html', {}, module);
   return cb();
 };
 
-exports.eejsBlock_body = (hook_name, args, cb) => {
+exports.eejsBlock_body = (hook, args, cb) => {
   args.content += eejs.require('ep_foot_note/templates/popup.html');
   return cb();
 };
 
-exports.aceAttribClasses = (hook_name, attr, cb) => {
+exports.aceAttribClasses = (hook, attr, cb) => {
   attr.fnss = 'tag:sup';
   attr.fn = 'tag:sup';
   attr.sup = 'tag:sup';
