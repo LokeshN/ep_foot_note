@@ -1,30 +1,51 @@
 {
   "name": "ep_foot_note",
-  "version": "0.0.3",
+  "version": "0.1.0",
   "keywords": [
     "footnote",
-    "footer"
+    "footer",
+    "etherpad"
   ],
-  "description": "Foot Note",
+  "description": "Foot Note plugin for Etherpad-Lite (https://etherpad.org/)",
+  "license": "ISC",
+  "author": {
+    "name": "Lokesh N",
+    "email": "nlokesh.17@gmail.com"
+  },
   "contributors": [
-    "Lokesh N <nlokesh.17@gmail.com>"
+    {
+      "name": "Lokesh N",
+      "email": "nlokesh.17@gmail.com"
+    },
+    {
+      "name": "Ilmar Türk",
+      "email": "ilmar@citizenos.com"
+    }
   ],
   "dependencies": {},
-  "engines": {
-    "node": "*"
-  },
   "main": "footNote.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint ."
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/LokeshN/ep_foot_note.git"
+    "url": "https://github.com/citizenos/ep_foot_note.git"
   },
-  "author": "LokeshN",
-  "license": "ISC",
   "bugs": {
-    "url": "https://github.com/LokeshN/ep_foot_note/issues"
+    "url": "https://github.com/citizenos/ep_foot_note/issues"
   },
-  "homepage": "https://github.com/LokeshN/ep_foot_note"
+  "homepage": "https://github.com/citizenos/ep_foot_note",
+  "devDependencies": {
+    "eslint": "^7.14.0",
+    "eslint-config-etherpad": "^1.0.13",
+    "eslint-plugin-mocha": "^8.0.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prefer-arrow": "^1.2.2",
+    "eslint-plugin-promise": "^4.2.1"
+  },
+  "eslintConfig": {
+    "root": true,
+    "extends": "etherpad/plugin"
+  }
 }
