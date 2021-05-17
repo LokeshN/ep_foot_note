@@ -1,7 +1,5 @@
 'use strict';
 
-const _ = require('ep_etherpad-lite/static/js/underscore');
-
 const cssFiles = ['ep_foot_note/static/css/styles.css'];
 
 
@@ -175,69 +173,68 @@ const addFootNote = function (footNoteText) {
  * Also calls the addfootnote method from footnote context
 */
 
-const fnPopupManager = (function FootNotePopupManager() {
-  return {
-    container: null,
+const FootNotePopupManager = function () {
+  this.container = null;
+};
 
-    insertPopupContainer() {
-      this.container = $('#footNotePopup');// this.padOuter.find('#footNotePopup');
-      this.addEventListener();
-    },
+FootNotePopupManager.prototype.insertPopupContainer = function () {
+  this.container = $('#footNotePopup');// this.padOuter.find('#footNotePopup');
+  this.addEventListener();
+};
 
-    getFootNoteContext() {
-      return this.footNoteContext;
-    },
+FootNotePopupManager.prototype.getFootNoteContext = function () {
+  return this.footNoteContext;
+};
 
-    setFootNoteContext(footNoteContext) {
-      this.footNoteContext = footNoteContext;
-    },
+FootNotePopupManager.prototype.setFootNoteContext = function (footNoteContext) {
+  this.footNoteContext = footNoteContext;
+};
 
-    showPopup(footNoteContext) {
-      // $("#footNotePopup").show();
-      if (this.container == null) this.insertPopupContainer();
-      this.container.addClass('popup-show');
-      this.container.show();
-      this.setFootNoteContext(footNoteContext);
-      setTimeout(() => {
-        $('#fnInput').focus();
-      });
-    },
+FootNotePopupManager.prototype.showPopup = function (footNoteContext) {
+  // $("#footNotePopup").show();
+  if (this.container == null) this.insertPopupContainer();
+  this.container.addClass('popup-show');
+  this.container.show();
+  this.setFootNoteContext(footNoteContext);
+  setTimeout(() => {
+    $('#fnInput').focus();
+  });
+};
 
-    addEventListener() {
-      const container = this.container;
-      const inputField = container.find('#fnInput');
+FootNotePopupManager.prototype.addEventListener = function () {
+  const container = this.container;
+  const inputField = container.find('#fnInput');
 
-      const doInsertFootNote = () => {
-        const footNoteText = inputField.val();
-        container.removeClass('popup-show');
-        container.hide();
+  const doInsertFootNote = () => {
+    const footNoteText = inputField.val();
+    container.removeClass('popup-show');
+    container.hide();
 
-        if (footNoteText === '') return;
+    if (footNoteText === '') return;
 
-        this.getFootNoteContext().ace.callWithAce((ace) => {
-          ace.ace_addFootNote(footNoteText);
-          inputField.val('');
-        }, 'addFootNote', true);
-      };
-
-      inputField.focus();
-      // add on click event listener..
-      inputField.on('keyup', (e) => {
-        if (e.keyCode === 13) {
-          doInsertFootNote();
-        }
-      });
-
-      container.find('#fnAdd').on('click', doInsertFootNote);
-      // cancel click event listener
-      container.find('#fnCancel').on('click', () => {
-        inputField.val('');
-        container.removeClass('popup-show');
-        container.hide();
-      });
-    },
+    this.getFootNoteContext().ace.callWithAce((ace) => {
+      ace.ace_addFootNote(footNoteText);
+      inputField.val('');
+    }, 'addFootNote', true);
   };
-})();
+
+  inputField.focus();
+  // add on click event listener..
+  inputField.on('keyup', (e) => {
+    if (e.keyCode === 13) {
+      doInsertFootNote();
+    }
+  });
+
+  container.find('#fnAdd').on('click', doInsertFootNote);
+  // cancel click event listener
+  container.find('#fnCancel').on('click', () => {
+    inputField.val('');
+    container.removeClass('popup-show');
+    container.hide();
+  });
+};
+const fnPopupManager = new FootNotePopupManager();
 
 exports.postAceInit = (hook, context) => {
   const hs = $('#footnote-button');
@@ -248,8 +245,8 @@ exports.postAceInit = (hook, context) => {
 
 exports.aceInitialized = (hook, context) => {
   const editorInfo = context.editorInfo;
-  editorInfo.ace_addFootNote = _(addFootNote).bind(context);
-  fixLineOrder = _(fixLineOrder).bind(context);
+  editorInfo.ace_addFootNote = addFootNote.bind(context);
+  fixLineOrder = fixLineOrder.bind(context);
 };
 
 exports.aceAttribsToClasses = (hook, context) => {
