@@ -21,6 +21,9 @@ exports.getLineHTMLForExport = async (hook, context) => {
   const fn = checkFootNoteInLine(context.attribLine, context.apool);
   context.lineContent = context.lineContent.replace(/<fnss/g, '<sup');
   context.lineContent = context.lineContent.replace(/<\/fnss/g, '</sup');
+  if (context.text.indexOf('*') === 0) {
+    context.lineContent = context.lineContent.replace('*', '');
+  }
   let text = context.text;
   if (context.text.indexOf('*') === 0) {
     text = context.text.replace('*', '');

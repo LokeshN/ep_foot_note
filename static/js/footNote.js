@@ -26,12 +26,10 @@ exports.aceCreateDomLine = (name, context) => {
 
 exports.aceDomLineProcessLineAttributes = (name, context) => {
   const cls = context.cls;
-
-
-  if (cls && cls.indexOf('fnEnd') > -1) {
+  if (cls && cls.indexOf('fnEndLine') > -1) {
     const modifier = {
-      preHtml: '',
-      postHtml: '',
+      preHtml: '<span class="fnEndLine">',
+      postHtml: '</span>',
       processedMarker: true,
     };
     return [modifier];
@@ -45,14 +43,9 @@ const _getFirstFNLineIndex = () => {
   const padInner = padOuter.find('iframe[name="ace_inner"]').contents();
   const documentLines = padInner.find('div.ace-line');
   documentLines.each((lineIndex, line) => {
-    const supTags = $(line).find('.sup');
+    const supTags = $(line).find('.fnEndLine');
     if (!endLineIndex && supTags.length === 1) {
-      const match = /fnItem-[0-9]*/gi.exec($(supTags[0]).attr('class'));
-      if (match && padInner.find(`.${match[0]}`).length > 1) {
-        if ($(line).attr('id') === padInner.find(`.${match[0]}`).last().parent().attr('id')) {
-          endLineIndex = lineIndex;
-        }
-      }
+      endLineIndex = lineIndex;
     }
   });
 
@@ -86,6 +79,7 @@ let fixLineOrder = function () {
     }
   });
   let lastLineIndex = _getFirstFNLineIndex();
+
   if (!lastLineIndex) return;
   lastLineTexts.forEach((textItem, index) => {
     const lastLine = rep.lines.atIndex(lastLineIndex);
@@ -103,10 +97,9 @@ let fixLineOrder = function () {
     rep.selEnd = [lastLineIndex, (`${index + 1}`).length];
     editorInfo.ace_setAttributeOnSelection('fnss', true);
     editorInfo.ace_setAttributeOnSelection(textItem.id, true);
-    editorInfo.ace_setAttributeOnSelection('fnEnd', true);
-    if (documentAttributeManager.getAttributeOnLine(lastLineIndex, 'fnEndLine') !== '') {
-      documentAttributeManager.setAttributeOnLine(lastLineIndex, 'fnEndLine', textItem.id);
-    }
+
+    documentAttributeManager.setAttributeOnLine(lastLineIndex, 'fnEndLine', textItem.id);
+
     lastLineIndex++;
   });
 };
@@ -122,6 +115,23 @@ const _getFootnoteCount = (html) => {
 
   return classes.length;
 };
+
+const addClickListeners = () => {
+  const padOuter = $('iframe[name="ace_outer"]').contents();
+  const padInner = padOuter.find('iframe[name="ace_inner"]').contents();
+  padInner.find('.fnEndLine').each(function (index, elem) {
+    $(elem).off('click');
+    $(elem).on('click', function () {
+      const supElem = $(elem).find('.sup');
+      const match = /fnItem-[0-9]*/gi.exec($(supElem[0]).attr('class'));
+      const element = padInner.find('.'+match[0]).first();
+      element.css("background-color", '#ccc');
+      setTimeout(() => {
+        element.css("background-color", 'initial')
+      }, 500)
+    })
+  });
+}
 /*
  * Method which adds the superscript next to the cursor
  * and also adds the footnote to the bottom of the page
@@ -146,26 +156,34 @@ const addFootNote = function (footNoteText) {
   editorInfo.ace_setAttributeOnSelection('fnContent', true);
 
   // Add the foot note to the end of the page
-  let len = rep.lines.atIndex(lastLNo).text.length;
-  if (len > 0) { // means there is some text there.... so press enter and add the foot note
-    editorInfo.ace_performSelectionChange([lastLNo, len], [lastLNo, len]);
+  const lastLine  = rep.lines.atIndex(lastLNo);
+  let len = lastLine.text.length;
+
+  editorInfo.ace_performSelectionChange([lastLNo, len], [lastLNo, len]);
+  editorInfo.ace_doReturnKey();
+  // increment the last line index , since Enter key is pressed..
+  lastLNo++;
+  // get lenth again
+  if (!$(lastLine.lineNode).find('.fnEndLine').length && len > 0) {
     editorInfo.ace_doReturnKey();
     // increment the last line index , since Enter key is pressed..
     lastLNo++;
-    // get lenth again
-    len = rep.lines.atIndex(lastLNo).text.length;
   }
+
+  len = rep.lines.atIndex(lastLNo).text.length;
 
   editorInfo.ace_replaceRange([lastLNo, 0], [lastLNo, len], `${fnCounter} ${footNoteText}`);
   rep.selStart = [lastLNo, 0];
   rep.selEnd = [lastLNo, (`${fnCounter}`).length];
   editorInfo.ace_setAttributeOnSelection('fnss', true);
   editorInfo.ace_setAttributeOnSelection(fnId, true);
-  editorInfo.ace_setAttributeOnSelection('fnEnd', true);
   this.documentAttributeManager.setAttributeOnLine(lastLNo, 'fnEndLine', fnId);
+
   fixLineOrder();
+
   editorInfo.ace_performSelectionChange(initialEnd, initialEnd);
   editorInfo.ace_focus();
+  addClickListeners();
 };
 
 /**
@@ -241,6 +259,7 @@ exports.postAceInit = (hook, context) => {
   hs.on('click', () => {
     fnPopupManager.showPopup(context);
   });
+  addClickListeners();
 };
 
 exports.aceInitialized = (hook, context) => {
@@ -251,9 +270,11 @@ exports.aceInitialized = (hook, context) => {
 
 exports.aceAttribsToClasses = (hook, context) => {
   const attribClasses = [];
-  const attribs = ['fnss', 'fnContent', 'fnEnd', 'fnEndLine'];
+  const attribs = ['fnss', 'fnContent'];
   if (attribs.indexOf(context.key) > -1) {
     attribClasses.push('fnss');
+  } else if(context.key === 'fnEndLine') {
+    attribClasses.push('fnEndLine');
   } else if (/(?:^| )(fnItem-[0-9]*)/.exec(context.key)) {
     attribClasses.push(context.key);
   }
@@ -317,5 +338,6 @@ exports.aceEditEvent = (hook, context, cb) => {
     context.editorInfo.ace_focus();
   }
 
+  addClickListeners();
   return cb();
 };

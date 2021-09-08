@@ -10,3 +10,7 @@
 #footNotePopupFooter {
     padding-top: 20px;
 }
+
+#innerdocbody .ace-line .fnEndLine span:not(.sup){
+    font-size: 13px;
+}
