@@ -119,19 +119,20 @@ const _getFootnoteCount = (html) => {
 const addClickListeners = () => {
   const padOuter = $('iframe[name="ace_outer"]').contents();
   const padInner = padOuter.find('iframe[name="ace_inner"]').contents();
-  padInner.find('.fnEndLine').each(function (index, elem) {
+  padInner.find('.fnEndLine').each((index, elem) => {
     $(elem).off('click');
-    $(elem).on('click', function () {
+    $(elem).on('click', () => {
       const supElem = $(elem).find('.sup');
       const match = /fnItem-[0-9]*/gi.exec($(supElem[0]).attr('class'));
-      const element = padInner.find('.'+match[0]).first();
-      element.css("background-color", '#ccc');
+      const element = padInner.find(`.${match[0]}`).first();
+      element.css('background-color', '#ccc');
       setTimeout(() => {
-        element.css("background-color", 'initial')
-      }, 500)
-    })
+        element.css('background-color', 'initial');
+      }, 500);
+    });
   });
-}
+};
+
 /*
  * Method which adds the superscript next to the cursor
  * and also adds the footnote to the bottom of the page
@@ -156,7 +157,7 @@ const addFootNote = function (footNoteText) {
   editorInfo.ace_setAttributeOnSelection('fnContent', true);
 
   // Add the foot note to the end of the page
-  const lastLine  = rep.lines.atIndex(lastLNo);
+  const lastLine = rep.lines.atIndex(lastLNo);
   let len = lastLine.text.length;
 
   editorInfo.ace_performSelectionChange([lastLNo, len], [lastLNo, len]);
@@ -273,7 +274,7 @@ exports.aceAttribsToClasses = (hook, context) => {
   const attribs = ['fnss', 'fnContent'];
   if (attribs.indexOf(context.key) > -1) {
     attribClasses.push('fnss');
-  } else if(context.key === 'fnEndLine') {
+  } else if (context.key === 'fnEndLine') {
     attribClasses.push('fnEndLine');
   } else if (/(?:^| )(fnItem-[0-9]*)/.exec(context.key)) {
     attribClasses.push(context.key);
