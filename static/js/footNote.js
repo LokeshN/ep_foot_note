@@ -26,7 +26,8 @@ exports.aceCreateDomLine = (name, context) => {
 
 exports.aceDomLineProcessLineAttributes = (name, context) => {
   const cls = context.cls;
-  if (cls && cls.indexOf('fnEndLine') > -1) {
+  // fnEnd check is for backward compatibility
+  if (cls && (cls.indexOf('fnEndLine') > -1 || cls.indexOf('fnEnd') > -1)) {
     const modifier = {
       preHtml: '<span class="fnEndLine">',
       postHtml: '</span>',
@@ -46,6 +47,16 @@ const _getFirstFNLineIndex = () => {
     const supTags = $(line).find('.fnEndLine');
     if (!endLineIndex && supTags.length === 1) {
       endLineIndex = lineIndex;
+    }
+    // check for backward compatibility
+    const supTagsOld = $(line).find('.sup');
+    if (!endLineIndex && supTagsOld.length === 1) {
+      const match = /fnItem-[0-9]*/gi.exec($(supTagsOld[0]).attr('class'));
+      if (match && padInner.find(`.${match[0]}`).length > 1) {
+        if ($(line).attr('id') === padInner.find(`.${match[0]}`).last().parent().attr('id')) {
+          endLineIndex = lineIndex;
+        }
+      }
     }
   });
 
