@@ -115,9 +115,11 @@ let fixLineOrder = function () {
   });
 };
 
-const _getFootnoteCount = (html) => {
+const _getFootnoteCount = () => {
   const classes = [];
-  $(html).find('.sup').each((index, item) => {
+  const padOuter = $('iframe[name="ace_outer"]').contents();
+  const padInner = padOuter.find('iframe[name="ace_inner"]').contents();
+  padInner.find('.sup').each((index, item) => {
     const match = /fnItem-[0-9]*/gi.exec($(item).attr('class'));
     if (match && classes.indexOf(match[0]) === -1) {
       classes.push(match[0]);
@@ -153,7 +155,7 @@ const addFootNote = function (footNoteText) {
   const rep = this.rep;
   const fnId = `fnItem-${Date.now()}`;
   // find the foot note counter...
-  const fnCounter = _getFootnoteCount(editorInfo.ace_getFormattedCode()) + 1;
+  const fnCounter = _getFootnoteCount() + 1;
   // find the last line and add the superscript and the text...
   let lastLNo = rep.lines.length() - 1;
 
